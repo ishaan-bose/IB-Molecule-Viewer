@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/source/External_Libs",
+                "${workspaceFolder}/../includes/raylib/",
+                "${workspaceFolder}/../includes/imgui/",
+                "${workspaceFolder}/../includes/rlImGui/",
+                "${workspaceFolder}/source/IB_Includes"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c23",
+            "cppStandard": "gnu++23",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
