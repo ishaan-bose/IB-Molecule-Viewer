@@ -1,10 +1,14 @@
 CC = g++
 CFLAGS = -Wall -Wextra -std=c++17 -O3
 LIBS = -lraylib -lGL -lm -lpthread -ldl -lX11
-INCLUDES = -I$(CURDIR)/source/IB_Includes/ -I$(CURDIR)/../includes/  -I$(CURDIR)/../includes/raylib/  -I$(CURDIR)/../includes/imgui/  -I$(CURDIR)/../includes/rlImGui/
 
+#imgui is causing some issues, i may look into it later, or might just use raylibs gui lol
+IMGUIINCLUDE = -I$(CURDIR)/../includes/imgui/  -I$(CURDIR)/../includes/rlImGui/
 
-SRC = source/*.cpp source/External_Libs/*.cpp
+INCLUDES = -I$(CURDIR)/source/IB_Includes/ -I$(CURDIR)/../includes/  -I$(CURDIR)/../includes/raylib/  
+
+EXTERNALLIBS = source/External_Libs/*.cpp #please include this in the SRC whenever an external lib is there, if no external lib then dont include
+SRC = source/*.cpp 
 
 TARGET = bin/myApp
 

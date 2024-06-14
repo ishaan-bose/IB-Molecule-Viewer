@@ -5,7 +5,7 @@
 
 struct orbital
 {
-        vec orbitalLength;
+        Vector3 orbitalLength;
         //read Conventions.md in "Conventions And Usage" folder for further details
 
         int type;

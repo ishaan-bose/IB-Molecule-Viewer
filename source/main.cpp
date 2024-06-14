@@ -1,8 +1,10 @@
-#include "imgui.h"
+/*#include "imgui.h"
 #include "rlImGui.h"
-#include "imgui_impl_raylib.h"
-#include "raymath.h"
+#include "imgui_impl_raylib.h"*/
+
+
 #include "raylib.h"
+#include "raymath.h"
 #include "raymath_operators.hpp"
 #include "rcamera.h"
 
@@ -26,9 +28,7 @@ int main()
     InitWindow(800, 800, "IB Molecule Viewer");
     SetTargetFPS(60);  // Set the desired frames-per-second
 
-    // Setup Dear ImGui context
-    rlImGuiSetup(true);
-    ImGui::StyleColorsDark();
+    
 
 
     /*
@@ -56,11 +56,11 @@ int main()
 
     // Define the camera to look into our 3d world
     Camera camera = { 0 };
-    camera.position = (Vector3){ 15.0f,-31.0f, 4.0f }; // Camera position
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+    camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };    // Camera position
+    camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 90.0f;                                // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;             // Camera mode type
+    camera.fovy = 60.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
 
 
@@ -76,17 +76,34 @@ int main()
     SetExitKey(KEY_NULL);
     Color color = GRAY; //note: remove when necessary or when you feel like it
     float frameDeltaTime = 1; //placeholder value 1, or else it might complain about dividing by 0
-    Vector2 mousePosition = {0.0f, 0.0f}; //the change in the mouse position
-    Vector2 mouseSpeed = {0.0f, 0.0f};
-    float mouseSensitivity = 0.5f;
+    bool InMenu = false; //in menu refers to  being in menu, if it is true it means the user is in menu
+    //such as graphics, audio, other settings, NOTE: IMGUI WILL HANDLE MOUSE INPUTS TOO, BE CAREFUL, SO DONT USE
+    //ImGui::GetIO().WantCaptureMouse WHILE ALSO EXPECTING THE GAME TO CAPTURE MOUSE CORRECTLY, hence the InMenu bool
+    //is so important
+    /*
+    █▄░█ █▀█ ▀█▀ █▀▀ ▀   █▀▀ █░█ ▄▀█ █▄░█ █▀▀ █▀▀   █ █▄░█ █▀▄▀█ █▀▀ █▄░█ █░█   ▀█▀ █▀█   ▀█▀ █▀█ █░█ █▀▀
+    █░▀█ █▄█ ░█░ ██▄ ▄   █▄▄ █▀█ █▀█ █░▀█ █▄█ ██▄   █ █░▀█ █░▀░█ ██▄ █░▀█ █▄█   ░█░ █▄█   ░█░ █▀▄ █▄█ ██▄
 
-    HideCursor();
+    ▄▀█ █▀▀ ▀█▀ █▀▀ █▀█   ▀█▀ █▀▀ █▀ ▀█▀ █ █▄░█ █▀▀ ░   █▀▀ █▀█ █▀█   ▀█▀ █░█ █▀▀   █▀▀ █ █▄░█ █ █▀ █░█ █▀▀ █▀▄
+    █▀█ █▀░ ░█░ ██▄ █▀▄   ░█░ ██▄ ▄█ ░█░ █ █░▀█ █▄█ █   █▀░ █▄█ █▀▄   ░█░ █▀█ ██▄   █▀░ █ █░▀█ █ ▄█ █▀█ ██▄ █▄▀
+
+    █▀█ █▀█ █▀█ █▀▄ █░█ █▀▀ ▀█▀   █▄█ █▀█ █░█   █▀ █░█ █▀█ █░█ █░░ █▀▄   █▄▄ █▄█   █▀▄ █▀▀ █▀▀ ▄▀█ █░█ █░░ ▀█▀   █▄▄ █▀▀
+    █▀▀ █▀▄ █▄█ █▄▀ █▄█ █▄▄ ░█░   ░█░ █▄█ █▄█   ▄█ █▀█ █▄█ █▄█ █▄▄ █▄▀   █▄█ ░█░   █▄▀ ██▄ █▀░ █▀█ █▄█ █▄▄ ░█░   █▄█ ██▄
+
+    █ █▄░█   ▀█▀ █░█ █▀▀   █▀▄▀█ █▀▀ █▄░█ █░█
+    █ █░▀█   ░█░ █▀█ ██▄   █░▀░█ ██▄ █░▀█ █▄█
+    */
+
+    Vector2 mousePos;
+    DisableCursor();
+
 
     while (!WindowShouldClose())
     {
         frameDeltaTime = GetFrameTime();
 
         
+
         /*
         ██╗███╗░░██╗██████╗░██╗░░░██╗████████╗  ░█████╗░██╗░░██╗███████╗░█████╗░██╗░░██╗
         ██║████╗░██║██╔══██╗██║░░░██║╚══██╔══╝  ██╔══██╗██║░░██║██╔════╝██╔══██╗██║░██╔╝
@@ -96,14 +113,10 @@ int main()
         ╚═╝╚═╝░░╚══╝╚═╝░░░░░░╚═════╝░░░░╚═╝░░░  ░╚════╝░╚═╝░░╚═╝╚══════╝░╚════╝░╚═╝░░╚═╝
         */
 
-        //bool CursorDisabled = true; //uncomment this later+
+        //bool CursorDisabled = true; //uncomment this later
 
-        mousePosition = GetMousePosition();
-        mouseSpeed = Vector2Scale(mousePosition, frameDeltaTime*mouseSensitivity);
-        
 
-        CameraYaw(&camera, mouseSpeed.x, false);
-        CameraPitch(&camera, mouseSpeed.y, true, false, true);
+        mousePos = GetMouseDelta();
 
         /*
         ▀▀█▀▀ █▀▀█ █▀▀▄ █▀▀█ ▄
@@ -113,35 +126,80 @@ int main()
         //create an array to store all the current keys being pressed at the moment, and later
         //make handler code that will do everything that needs to be done such as animations, loading, etc while
         //also taking care of the input
-        if(!ImGui::GetIO().WantCaptureMouse)
+
+
+        /*
+        ▀▀█▀▀ █▀▀█ █▀▀▄ █▀▀█ ▄
+        ░░█░░ █░░█ █░░█ █░░█ ░
+        ░░▀░░ ▀▀▀▀ ▀▀▀░ ▀▀▀▀ ▀
+        */
+       //write some code to find if the mouse is in the scene view region or in the menu region, and the menu and screen view
+       //can be dynamically changed, also the mouse being outside of the window counts as menu, for simplicity sake 
+        
+            
+        if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_ESCAPE))
+        {
+           goto PROGRAM_END;
+        }   //setup a way to forcefully exit program no matter what
+
+        if(!InMenu) //in app controls such as moving camera, moving objects, etc
         {
 
-            if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_ESCAPE))
+            if(IsKeyPressed(KEY_HOME)) //just a simple code to switch to menu, later implement the todo that is above
             {
-                goto PROGRAM_END;
+                EnableCursor();
+                InMenu = true;
             }
 
-            if(IsKeyDown(KEY_W))
+            if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
             {
-                CameraMoveForward(&camera, 0.2f, false);
-            }
+                if(IsKeyDown(KEY_W))
+                {
+                    CameraMoveForward(&camera, 0.2f, false);
+                }
 
-            if(IsKeyDown(KEY_S))
-            {
-                CameraMoveForward(&camera, -0.2f, false);
-            }
+                if(IsKeyDown(KEY_S))
+                {
+                    CameraMoveForward(&camera, -0.2f, false);
+                }
 
-            if(IsKeyDown(KEY_D))
-            {
-                CameraMoveRight(&camera, 0.2f, false);
-            }
+                if(IsKeyDown(KEY_D))
+                {
+                    CameraMoveRight(&camera, 0.2f, false);
+                }
 
-            if(IsKeyDown(KEY_A))
-            {
-                CameraMoveRight(&camera, -0.2f, false);
-            }
+                if(IsKeyDown(KEY_A))
+                {
+                    CameraMoveRight(&camera, -0.2f, false);
+                }
 
+                if(IsKeyDown(KEY_E))
+                {
+                    CameraMoveUp(&camera, 0.2f);
+                }
+
+                if(IsKeyDown(KEY_Q))
+                {
+                    CameraMoveUp(&camera, -0.2f);
+                }
+
+                //there is '-' because for some reason it is inverting it idk why
+                CameraYaw(&camera, -mousePos.x*0.005f, false);
+                CameraPitch(&camera, -mousePos.y*0.005f, true, false, false); //DONT SET ROTATE UP PARAMETER TO TRUE
+                //wasted like 1 hour of my time figuring it out
+            }
         }
+        else if(InMenu)
+        {
+
+            if(IsKeyPressed(KEY_HOME)) //just a simple code to switch to scene, later implement the todo that is above
+            {
+                DisableCursor();
+                InMenu = false;
+            }
+        }
+
+        
 
 
 
@@ -152,45 +210,38 @@ int main()
 
 
         /*
-        ██████╗░░█████╗░██╗░░░██╗██╗░░░░░██╗██████╗░  ██████╗░██████╗░░█████╗░░██╗░░░░░░░██╗██╗███╗░░██╗░██████╗░
-        ██╔══██╗██╔══██╗╚██╗░██╔╝██║░░░░░██║██╔══██╗  ██╔══██╗██╔══██╗██╔══██╗░██║░░██╗░░██║██║████╗░██║██╔════╝░
-        ██████╔╝███████║░╚████╔╝░██║░░░░░██║██████╦╝  ██║░░██║██████╔╝███████║░╚██╗████╗██╔╝██║██╔██╗██║██║░░██╗░
-        ██╔══██╗██╔══██║░░╚██╔╝░░██║░░░░░██║██╔══██╗  ██║░░██║██╔══██╗██╔══██║░░████╔═████║░██║██║╚████║██║░░╚██╗
-        ██║░░██║██║░░██║░░░██║░░░███████╗██║██████╦╝  ██████╔╝██║░░██║██║░░██║░░╚██╔╝░╚██╔╝░██║██║░╚███║╚██████╔╝
-        ╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚══════╝╚═╝╚═════╝░  ╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚══╝░╚═════╝░
+        ██████╗░██████╗░░█████╗░░██╗░░░░░░░██╗██╗███╗░░██╗░██████╗░
+        ██╔══██╗██╔══██╗██╔══██╗░██║░░██╗░░██║██║████╗░██║██╔════╝░
+        ██║░░██║██████╔╝███████║░╚██╗████╗██╔╝██║██╔██╗██║██║░░██╗░
+        ██║░░██║██╔══██╗██╔══██║░░████╔═████║░██║██║╚████║██║░░╚██╗
+        ██████╔╝██║░░██║██║░░██║░░╚██╔╝░╚██╔╝░██║██║░╚███║╚██████╔╝
+        ╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚══╝░╚═════╝░
         */
         BeginDrawing();
-        rlImGuiBegin();
 
         {
 
             /*
-            ░██████╗░██╗░░░██╗██╗
-            ██╔════╝░██║░░░██║██║
-            ██║░░██╗░██║░░░██║██║
-            ██║░░╚██╗██║░░░██║██║
-            ╚██████╔╝╚██████╔╝██║
-            ░╚═════╝░░╚═════╝░╚═╝
+            ░██████╗░██╗░░░██╗██╗  ██████╗░███████╗███╗░░██╗██████╗░███████╗██████╗░██╗███╗░░██╗░██████╗░
+            ██╔════╝░██║░░░██║██║  ██╔══██╗██╔════╝████╗░██║██╔══██╗██╔════╝██╔══██╗██║████╗░██║██╔════╝░
+            ██║░░██╗░██║░░░██║██║  ██████╔╝█████╗░░██╔██╗██║██║░░██║█████╗░░██████╔╝██║██╔██╗██║██║░░██╗░
+            ██║░░╚██╗██║░░░██║██║  ██╔══██╗██╔══╝░░██║╚████║██║░░██║██╔══╝░░██╔══██╗██║██║╚████║██║░░╚██╗
+            ╚██████╔╝╚██████╔╝██║  ██║░░██║███████╗██║░╚███║██████╔╝███████╗██║░░██║██║██║░╚███║╚██████╔╝
+            ░╚═════╝░░╚═════╝░╚═╝  ╚═╝░░╚═╝╚══════╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝╚═╝╚═╝░░╚══╝░╚═════╝░
             */
 
-            ImGui::Begin("hi there");
-            ImGui::Text("Hello there!");
-
-
-            ImGui::End();
 
 
 
             /*
-            ██████╗░███████╗███╗░░██╗██████╗░███████╗██████╗░██╗███╗░░██╗░██████╗░
-            ██╔══██╗██╔════╝████╗░██║██╔══██╗██╔════╝██╔══██╗██║████╗░██║██╔════╝░
-            ██████╔╝█████╗░░██╔██╗██║██║░░██║█████╗░░██████╔╝██║██╔██╗██║██║░░██╗░
-            ██╔══██╗██╔══╝░░██║╚████║██║░░██║██╔══╝░░██╔══██╗██║██║╚████║██║░░╚██╗
-            ██║░░██║███████╗██║░╚███║██████╔╝███████╗██║░░██║██║██║░╚███║╚██████╔╝
-            ╚═╝░░╚═╝╚══════╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝╚═╝╚═╝░░╚══╝░╚═════╝░
+            ███╗░░░███╗░█████╗░██╗███╗░░██╗  ██████╗░███████╗███╗░░██╗██████╗░███████╗██████╗░██╗███╗░░██╗░██████╗░
+            ████╗░████║██╔══██╗██║████╗░██║  ██╔══██╗██╔════╝████╗░██║██╔══██╗██╔════╝██╔══██╗██║████╗░██║██╔════╝░
+            ██╔████╔██║███████║██║██╔██╗██║  ██████╔╝█████╗░░██╔██╗██║██║░░██║█████╗░░██████╔╝██║██╔██╗██║██║░░██╗░
+            ██║╚██╔╝██║██╔══██║██║██║╚████║  ██╔══██╗██╔══╝░░██║╚████║██║░░██║██╔══╝░░██╔══██╗██║██║╚████║██║░░╚██╗
+            ██║░╚═╝░██║██║░░██║██║██║░╚███║  ██║░░██║███████╗██║░╚███║██████╔╝███████╗██║░░██║██║██║░╚███║╚██████╔╝
+            ╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝╚═╝░░╚══╝  ╚═╝░░╚═╝╚══════╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝╚═╝╚═╝░░╚══╝░╚═════╝░
             */
 
-            ImGui::Render();
             ClearBackground(color);
 
 
@@ -198,14 +249,12 @@ int main()
 
 
                 DrawModel(pOrbital, (Vector3){ 1.0, 0.0, 0.0 }, 3.0f, BLUE);
-                DrawGrid(15, 1.0f);
+                DrawGrid(100, 1.0f);
 
 
             EndMode3D();
         }
 
-
-        rlImGuiEnd();
         EndDrawing();
     }
 
@@ -230,7 +279,6 @@ int main()
     UnloadModel(pOrbital);
 
 
-    rlImGuiShutdown();
     CloseWindow();  // Close the window and OpenGL context
 
     return 0;
