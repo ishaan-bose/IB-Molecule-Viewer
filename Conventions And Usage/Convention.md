@@ -17,7 +17,7 @@ So What do I mean when I say "size of an orbital"? What I mean is the size of th
 
 ![Image Not Loading](./images_for_convention_and_usage/AtomMassAndNumber.png)<br>
 
-this short has 2 bytes, the first 9 bits will define atomic mass, the 7 bits will define
+this short has 2 bytes, the first 9 bits will define atomic mass, the last 7 bits will define
 atomic number
 
 ### Atomic Orbitals
