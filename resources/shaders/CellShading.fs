@@ -15,7 +15,7 @@ out vec4 finalColor;
 
 // NOTE: Add here your custom variables
 
-#define     MAX_LIGHTS              4
+#define     MAX_LIGHTS              1   //for now
 #define     LIGHT_DIRECTIONAL       0
 #define     LIGHT_POINT             1
 
@@ -35,44 +35,50 @@ uniform vec3 viewPos;
 void main()
 {
     // Texel color fetching from texture sampler
-    vec4 texelColor = texture(texture0, fragTexCoord);
+    vec4 texelColor = vec4(0.0);
     vec3 lightDot = vec3(0.0);
     vec3 normal = normalize(fragNormal);
     vec3 viewD = normalize(viewPos - fragPosition);
-    vec3 specular = vec3(0.0);
+
+    vec2 uv = vec2(0.0);
 
 
-    for (int i = 0; i < MAX_LIGHTS; i++)
+    
+    if (lights[0].enabled == 1)
     {
-        if (lights[i].enabled == 1)
+        vec3 light = vec3(0.0);
+
+        if (lights[0].type == LIGHT_DIRECTIONAL)
         {
-            vec3 light = vec3(0.0);
-
-            if (lights[i].type == LIGHT_DIRECTIONAL)
-            {
-                light = -normalize(lights[i].target - lights[i].position);
-            }
-
-            if (lights[i].type == LIGHT_POINT)
-            {
-                light = normalize(lights[i].position - fragPosition);
-            }
-
-            float NdotL = max(dot(normal, light), 0.0);
-            lightDot += lights[i].color.rgb*NdotL;
-
-            float specCo = 0.0;
-            if (NdotL > 0.0) specCo = pow(max(0.0, dot(viewD, reflect(-(light), normal))), 16.0); // 16 refers to shine
-            specular += specCo;
+           light = -normalize(lights[0].target - lights[0].position);
         }
-    }
 
-    finalColor = (texelColor*((colDiffuse + vec4(specular, 1.0))*vec4(lightDot, 1.0)));
+        if (lights[0].type == LIGHT_POINT)
+        {
+            light = normalize(lights[0].position - fragPosition);
+        }
+
+        float NdotL = max(dot(normal, light), 0.0);
+        lightDot += lights[0].color.rgb*NdotL;
+
+        //got this line of code from https://roystan.net/articles/toon-shader/
+        uv = vec2(1.0 - (NdotL * 0.5 + 0.5), 0.5);      
+    }
     
 
-    // Gamma correction - idk what this means, i just copied it from the raylib examples
-    finalColor = pow(finalColor, vec4(1.0/2.2));
+    texelColor = texture(texture0, uv);
 
-
+    finalColor += texelColor;
     finalColor += texelColor*(ambient/10.0)*colDiffuse;
+
+    //for the rim it should be black, if the dot product of the normal and viewDirection is smaller than some value
+    //then it means that the surface is facing almost 90 degrees or more than 90 degrees
+    if(dot(viewD, normal) < 0.25)
+    {
+        finalColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+
+
+    
 }

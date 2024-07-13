@@ -20,8 +20,8 @@ struct Atom
     std::vector<char> OrbitalFillingAndHybridization;
     
 
-    Atom(short atomic_mass_and_number, Vector3 pos)
-    : AtomicMassAndNumber{atomic_mass_and_number}, Position{pos}
+    Atom(short atomic_mass_and_number, Vector3 pos, Vector3 rot)
+    : AtomicMassAndNumber{atomic_mass_and_number}, Position{pos}, Rotation{rot}
     {
     }
 };

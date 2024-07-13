@@ -82,8 +82,9 @@ int main()
 
     Shader shader;
     std::vector<Mesh> meshes;
+    std::vector<Image> images;
 
-    Atom CarbonTestAtom(1542, Vector3{0.0, 3.0, 2.6});
+    Atom CarbonTestAtom(1542, Vector3{0.0, 3.0, 2.6}, Vector3{PI/3.0, PI/3.0, PI/3.0});
 
     try
     {
@@ -95,6 +96,10 @@ int main()
         {
             throw std::runtime_error("resources/models/d orbital normal.obj");
         }
+        if(!DoesFileExist("./resources/textures/P Orbital Texture.png"))
+        {
+            throw std::runtime_error("resources/textures/P Orbital Texture.png");
+        }
 
 
 
@@ -105,6 +110,8 @@ int main()
 
         meshes.push_back(LoadModel("./resources/models/p orbital.obj").meshes[0]);
         meshes.push_back(LoadModel("./resources/models/d orbital normal.obj").meshes[0]);
+
+        images.push_back(LoadImage("./resources/textures/P Orbital Texture.png"));
 
 
         shader = LoadShader("./resources/shaders/CellShading.vs", "./resources/shaders/CellShading.fs");
@@ -127,7 +134,7 @@ int main()
     
     // Define the camera to look into our 3d world
     Camera camera = { 0 };
-    camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };    // Camera position
+    camera.position = (Vector3){ 0.0f, 2.0f, 10.0f };    // Camera position
     camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 60.0f;                                // Camera field-of-view Y
@@ -144,6 +151,7 @@ int main()
 
     Material orbitalMat = LoadMaterialDefault();
     orbitalMat.shader = shader;
+    orbitalMat.maps[0].texture = LoadTextureFromImage(images.at(0));
 
     //Creating the main light source                                                                        got this colour from some colour picking website
     Light mainLight = CreateLight(LIGHT_DIRECTIONAL, (Vector3){ 1000, 1000, 1000 }, (Vector3){0, 0, 0}, (Color){246, 234, 172, 255}, shader);
@@ -294,8 +302,8 @@ int main()
         ██████╔╝██║░░██║██║░░██║░░╚██╔╝░╚██╔╝░██║██║░╚███║╚██████╔╝
         ╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚══╝░╚═════╝░
         */
-
-        Matrix transform = MatrixTranslate(CarbonTestAtom.Position.x, CarbonTestAtom.Position.y, CarbonTestAtom.Position.z);
+        //NOTE: SINCE ORDER OF MULTIPLICATION MATTERS, I AM DOING ROTATION THEN TRANSLATION
+        Matrix transform = MatrixMultiply(MatrixRotateXYZ(CarbonTestAtom.Rotation), MatrixTranslate(CarbonTestAtom.Position));
 
 
         BeginDrawing();
@@ -317,7 +325,14 @@ int main()
             BeginMode3D(camera);
 
                 DrawMesh(meshes.at(0), orbitalMat, transform);
-                DrawGrid(100, 1.0f);
+                //draw grid
+                DrawGrid(600, 1.0f);
+                //draw x axis
+                DrawLine3D(Vector3{-300.0, 0.0, 0.0}, Vector3{300.0, 0.0, 0.0}, RED);
+                //draw y axis
+                DrawLine3D(Vector3{0.0, -300.0, 0.0}, Vector3{0.0,300.0, 0.0}, GREEN);
+                //draw z axis
+                DrawLine3D(Vector3{0.0, 0.0, -300.0}, Vector3{0.0, 0.0, 300.0}, BLUE);
 
             EndMode3D();
 
@@ -359,6 +374,8 @@ int main()
 
     UnloadMesh(meshes.at(0));
     UnloadMesh(meshes.at(1));
+
+    UnloadImage(images.at(0));
 
     CloseWindow();  // Close the window and OpenGL context
 
