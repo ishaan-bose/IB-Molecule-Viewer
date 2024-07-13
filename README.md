@@ -66,7 +66,7 @@ Right Now there isn't much to show, this image shows a model of the p orbital th
 
 1.  Using the Atom class make a function to iterate through each atom and render it
 
-2.  Using the vector that represents the orbital to appropriately rotate the orbitals, for more information look at the [Convention.md]("Conventions And Usage/Convention.md") file
+2.  Using the vector that represents the orbital to appropriately rotate the orbitals, for more information look at the [Convention.md](https://github.com/ishaan-bose/IB-Molecule-Viewer/blob/main/Conventions%20And%20Usage/Convention.md) file
 
 3.  Add a simple GUI using the raygui library.
 
