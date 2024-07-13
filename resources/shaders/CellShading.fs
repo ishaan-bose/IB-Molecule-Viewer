@@ -73,7 +73,7 @@ void main()
 
     //for the rim it should be black, if the dot product of the normal and viewDirection is smaller than some value
     //then it means that the surface is facing almost 90 degrees or more than 90 degrees
-    if(dot(viewD, normal) < 0.25)
+    if(dot(viewD, normal) < 0.23)
     {
         finalColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
