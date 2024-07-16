@@ -11,6 +11,7 @@
 #define RLIGHTS_IMPLEMENTATION
 #include "rlights.h"
 
+
 #include "IBCommonUtils.hpp"
 
 
@@ -26,9 +27,10 @@ int main()
     ░░╚██╔╝░╚██╔╝░██║██║░╚███║██████╔╝╚█████╔╝░░╚██╔╝░╚██╔╝░
     ░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░░╚════╝░░░░╚═╝░░░╚═╝░░
     */
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
+    
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI);
     InitWindow(1200, 1200, "IB Molecule Viewer");
-    SetTargetFPS(500);  // Set the desired frames-per-second
+    SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));  // Set the desired frames-per-second
 
     
 
@@ -96,22 +98,30 @@ int main()
         {
             throw std::runtime_error("resources/models/d orbital normal.obj");
         }
+
         if(!DoesFileExist("./resources/textures/P Orbital Texture.png"))
         {
             throw std::runtime_error("resources/textures/P Orbital Texture.png");
         }
-
-
-
+        if(!DoesFileExist("./resources/textures/D Orbital Normal Texture.png"))
+        {
+            throw std::runtime_error("resources/textures/D Orbital Normal Texture.png");
+        }
+        
         if(!DoesFileExist("./resources/shaders/CellShading.fs"))
         {
             throw std::runtime_error("resources/shaders/CellShading.fs");
         }
 
+
+
         meshes.push_back(LoadModel("./resources/models/p orbital.obj").meshes[0]);
         meshes.push_back(LoadModel("./resources/models/d orbital normal.obj").meshes[0]);
 
+
         images.push_back(LoadImage("./resources/textures/P Orbital Texture.png"));
+        images.push_back(LoadImage("./resources/textures/D Orbital Normal Texture.png"));
+        
 
 
         shader = LoadShader("./resources/shaders/CellShading.vs", "./resources/shaders/CellShading.fs");
@@ -149,15 +159,19 @@ int main()
     SetShaderValue(shader, ambientLoc, ambientColour, SHADER_UNIFORM_VEC4);
     delete[] ambientColour;
 
-    Material orbitalMat = LoadMaterialDefault();
-    orbitalMat.shader = shader;
-    orbitalMat.maps[0].texture = LoadTextureFromImage(images.at(0));
+    Material pOrbitalMat = LoadMaterialDefault();
+    pOrbitalMat.shader = shader;
+    pOrbitalMat.maps[0].texture = LoadTextureFromImage(images.at(0));
+
+    Material DOrbitalMat = LoadMaterialDefault();
+    DOrbitalMat.shader = shader;
+    DOrbitalMat.maps[0].texture = LoadTextureFromImage(images.at(1));
 
     //Creating the main light source                                                                        got this colour from some colour picking website
-    Light mainLight = CreateLight(LIGHT_DIRECTIONAL, (Vector3){ 1000, 1000, 1000 }, (Vector3){0, 0, 0}, (Color){246, 234, 172, 255}, shader);
+    Light mainLight = CreateLight((Vector3){ 4200, 1000, 6900 }, (Vector3){0, 0, 0}, (Color){246, 234, 172, 255}, shader);
 
 
-
+    
 
 
 
@@ -303,7 +317,8 @@ int main()
         ╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚══╝░╚═════╝░
         */
         //NOTE: SINCE ORDER OF MULTIPLICATION MATTERS, I AM DOING ROTATION THEN TRANSLATION
-        Matrix transform = MatrixMultiply(MatrixRotateXYZ(CarbonTestAtom.Rotation), MatrixTranslate(CarbonTestAtom.Position));
+        Matrix transform;
+        
 
 
         BeginDrawing();
@@ -323,8 +338,12 @@ int main()
             
             
             BeginMode3D(camera);
+                //draw meshes
+                transform = MatrixMultiply(MatrixRotateXYZ(CarbonTestAtom.Rotation), MatrixTranslate(CarbonTestAtom.Position));
+                DrawMesh(meshes.at(0), pOrbitalMat, transform);
+                transform = MatrixMultiply(MatrixRotateXYZ(CarbonTestAtom.Rotation), MatrixTranslate(CarbonTestAtom.Position + Vector3{3.0, 4.2, 1.2}));
+                DrawMesh(meshes.at(1), DOrbitalMat, transform);
 
-                DrawMesh(meshes.at(0), orbitalMat, transform);
                 //draw grid
                 DrawGrid(600, 1.0f);
                 //draw x axis

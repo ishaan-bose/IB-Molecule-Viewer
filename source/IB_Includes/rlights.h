@@ -43,28 +43,19 @@
 //----------------------------------------------------------------------------------
 
 // Light data
-typedef struct {   
-    int type;
-    bool enabled;
+typedef struct {
     Vector3 position;
     Vector3 target;
     Color color;
     float attenuation;
     
     // Shader locations
-    int enabledLoc;
     int typeLoc;
     int positionLoc;
     int targetLoc;
     int colorLoc;
     int attenuationLoc;
 } Light;
-
-// Light type
-typedef enum {
-    LIGHT_DIRECTIONAL = 0,
-    LIGHT_POINT
-} LightType;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
@@ -114,24 +105,21 @@ static int lightsCount = 0;    // Current amount of created lights
 // ...
 
 //----------------------------------------------------------------------------------
-// Module Functions Definition
+// Module Functions Definitionlight.enabled = true;
 //----------------------------------------------------------------------------------
 
 // Create a light and get shader locations
-Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shader shader)
+Light CreateLight(Vector3 position, Vector3 target, Color color, Shader shader)
 {
     Light light = { 0 };
 
     if (lightsCount < MAX_LIGHTS)
     {
-        light.enabled = true;
-        light.type = type;
         light.position = position;
         light.target = target;
         light.color = color;
 
         // NOTE: Lighting shader naming must be the provided ones
-        light.enabledLoc = GetShaderLocation(shader, TextFormat("lights[%i].enabled", lightsCount));
         light.typeLoc = GetShaderLocation(shader, TextFormat("lights[%i].type", lightsCount));
         light.positionLoc = GetShaderLocation(shader, TextFormat("lights[%i].position", lightsCount));
         light.targetLoc = GetShaderLocation(shader, TextFormat("lights[%i].target", lightsCount));
@@ -149,9 +137,6 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
 // NOTE: Light shader locations should be available 
 void UpdateLightValues(Shader shader, Light light)
 {
-    // Send to shader light enabled state and type
-    SetShaderValue(shader, light.enabledLoc, &light.enabled, SHADER_UNIFORM_INT);
-    SetShaderValue(shader, light.typeLoc, &light.type, SHADER_UNIFORM_INT);
 
     // Send to shader light position values
     float position[3] = { light.position.x, light.position.y, light.position.z };
