@@ -51,12 +51,9 @@ void main()
 
     finalColor += texelColor + (ambient/10.0)*colDiffuse;
 
-    //for the rim it should be black, if the dot product of the normal and viewDirection is smaller than some value
-    //then it means that the surface is facing almost 90 degrees or more than 90 degrees
-    if(abs(dot(viewD, normal)) < 0.10)
-    {
-        finalColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    finalColor.a = 0.6;//added a bit of transparency, hence alpha value is lesser than 1
+
+    
 
 
 

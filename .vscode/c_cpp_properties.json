@@ -7,7 +7,8 @@
                 "${workspaceFolder}/../includes/raylib/",
                 "${workspaceFolder}/../includes/imgui/",
                 "${workspaceFolder}/../includes/rlImGui/",
-                "${workspaceFolder}/source/IB_Includes"
+                "${workspaceFolder}/source/IB_Includes",
+                "${workspaceFolder}/../includes/halfFloat"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

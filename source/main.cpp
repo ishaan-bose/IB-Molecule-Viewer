@@ -86,7 +86,15 @@ int main()
     std::vector<Mesh> meshes;
     std::vector<Image> images;
 
-    Atom CarbonTestAtom(1542, Vector3{0.0, 3.0, 2.6}, Vector3{PI/3.0, PI/3.0, PI/3.0});
+    
+
+    Vector3 testAtomPos{0.0, 0.0, 0.0};
+    Vector3 testAtomRotPx{0.0, 0.0, PI/2.0};
+    Vector3 testAtomRotPy{0.0, 0.0, 0.0}; //already in Py by default
+    Vector3 testAtomRotPz{PI/2.0, 0.0, 0.0};
+    Vector3 testAtomRotDxy{0.0, 0.0, PI/4.0};
+    Vector3 testAtomRotDyz{0.0, PI/2.0, PI/4.0};
+    Vector3 testAtomRotDxz{PI/2.0, 0.0, PI/4.0};
 
     try
     {
@@ -318,8 +326,6 @@ int main()
         */
         //NOTE: SINCE ORDER OF MULTIPLICATION MATTERS, I AM DOING ROTATION THEN TRANSLATION
         Matrix transform;
-        
-
 
         BeginDrawing();
 
@@ -339,10 +345,27 @@ int main()
             
             BeginMode3D(camera);
                 //draw meshes
-                transform = MatrixMultiply(MatrixRotateXYZ(CarbonTestAtom.Rotation), MatrixTranslate(CarbonTestAtom.Position));
+
+                //remember that matrix multiplication order matters, the atom should rotate THEN translate
+
+                transform = (MatrixRotateXYZ(testAtomRotPx) * MatrixTranslate(testAtomPos)) * MatrixScale(1.3, 1.0, 1.0);
                 DrawMesh(meshes.at(0), pOrbitalMat, transform);
-                transform = MatrixMultiply(MatrixRotateXYZ(CarbonTestAtom.Rotation), MatrixTranslate(CarbonTestAtom.Position + Vector3{3.0, 4.2, 1.2}));
+
+                transform = (MatrixRotateXYZ(testAtomRotPy) * MatrixTranslate(testAtomPos)) * MatrixScale(1.0, 1.3, 1.0);
+                DrawMesh(meshes.at(0), pOrbitalMat, transform);
+
+                transform = (MatrixRotateXYZ(testAtomRotPz) * MatrixTranslate(testAtomPos)) * MatrixScale(1.0, 1.0, 1.3);
+                DrawMesh(meshes.at(0), pOrbitalMat, transform);
+                
+                transform = (MatrixScale(1.5, 1.5, 1.2)  * MatrixRotateXYZ(testAtomRotDxy)) * MatrixTranslate(testAtomPos);
                 DrawMesh(meshes.at(1), DOrbitalMat, transform);
+                
+                transform = (MatrixScale(1.5, 1.5, 1.2)  * MatrixRotateXYZ(testAtomRotDyz)) * MatrixTranslate(testAtomPos);
+                DrawMesh(meshes.at(1), DOrbitalMat, transform);
+
+                transform = (MatrixScale(1.5, 1.5, 1.2)  * MatrixRotateXYZ(testAtomRotDxz)) * MatrixTranslate(testAtomPos);
+                DrawMesh(meshes.at(1), DOrbitalMat, transform);
+ 
 
                 //draw grid
                 DrawGrid(600, 1.0f);
@@ -399,6 +422,8 @@ int main()
     CloseWindow();  // Close the window and OpenGL context
 
     std::cout << "CleanUp Successful\n";
+
+
 
     return 0;
 }

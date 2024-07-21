@@ -1,23 +1,23 @@
 
 #  Welcome to IB Molecule Viewer
 
-  
+
+
+
+## What is IB Molecule Viewer?  
 
 IB = my initials
 
-  
-
 This program is Meant to show the structure of molecules and compounds, the main focus being organic molecules but coordination compounds will also be supported eventually if i am not too lazy to implement it.
 
-  
 
 ##  How to Run It
 
   
-
 Currently only ***Linux*** is Supported, but you can easily just edit the *Makefile* to include the libraries for ***windows*** or ***mac OS*** (stop using mac os, linux is better)
 
 ### LINUX
+
 To run the program, you have to first install the [raylib libraries](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux), this will install the required dependencies on your system.
 
 Next Open the command line on your system and clone the repository using the git tool, execute the following command:
@@ -46,7 +46,10 @@ And to clean the build, simply do the following in the console:
 make clean
 ```
 
-  
+
+## Convention.md Disclaimer
+
+the Convention.md file may be lagging behind the actual code, because I write the code first THEN i update the Conventions. There may be entire chunks of code rewritten therefore be careful and if there is a conflict between code and Conventions, the code takes priority.
   
 
 ##  Progress
@@ -57,7 +60,7 @@ Right Now there isn't much to show, this image shows a model of the p orbital th
 
   
 
-![Image Not Loading](./P_Orbital_Cell_Shading.png)
+![Image Not Loading](./Atom_p_and_d_orbital_view.png)
 
   
 

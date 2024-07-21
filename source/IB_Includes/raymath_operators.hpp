@@ -62,6 +62,12 @@ inline Vector2 operator- (Vector2 lhs, const Vector2& rhs)
 	return Vector2{ lhs.x - rhs.x, lhs.y - rhs.y };
 }
 
+//this is my own function, order of multiplication matters
+inline Matrix operator* (Matrix lhs, const Matrix& rhs)
+{
+	return MatrixMultiply(lhs, rhs);
+}
+
 inline Vector2 operator- (Vector2 lhs, const float& rhs)
 {
 	return Vector2{ lhs.x - rhs, lhs.y - rhs };

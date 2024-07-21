@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=IB Molecule Viewer
+Comment=Application for viewing and editing molecules and reactions, mainly for organic chemistry
+Exec=/bin/myApp
+Terminal=false
+Keywords=Chemistry, organic, organic chem, IB, molecule, molecule viewer, viewer, IB molecule, IB Molecule, reaction
+Type=Application

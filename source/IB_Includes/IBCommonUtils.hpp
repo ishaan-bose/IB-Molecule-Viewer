@@ -6,9 +6,12 @@
 #include <sys/stat.h>
 #include <stdexcept>
 #include <string>
-#include "Atom.hpp"
 
 
+unsigned int extractBits(unsigned int num, unsigned int pos, unsigned int k)
+{
+    return ((num >> pos) & ((1 << k) - 1));
+}
 
 
 inline bool DoesFileExist (const std::string& name)
