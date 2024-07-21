@@ -56,7 +56,7 @@ the Convention.md file may be lagging behind the actual code, because I write th
 
   
 
-Right Now there isn't much to show, this image shows a model of the p orbital that has some basic lighting applied to it
+Right Now there isn't much to show, this image shows a model of the p and d orbitals that has some basic cel shading applied to it
 
   
 
