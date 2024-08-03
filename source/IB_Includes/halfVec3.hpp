@@ -26,7 +26,7 @@ struct HalfVector3 {
 
     // Conversion from HalfVector3 to Vector3
     operator Vector3() const {
-        return Vector3(float(x), float(y), float(z));
+        return Vector3{float(x), float(y), float(z)};
     }
 
     // Addition operator

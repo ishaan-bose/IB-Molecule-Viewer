@@ -13,6 +13,7 @@
 
 
 #include "IBCommonUtils.hpp"
+#include "Atom.hpp"
 
 
 int main()
@@ -57,14 +58,15 @@ int main()
     bool CursorEnabled = false;
     Vector2 mouseDelta;
     Vector2 mousePosBeforeDisable;
+    float CameraSpeed = 1.0f;
     DisableCursor();
-    SetTargetFPS(75);
    
 
     bool InMenu = false; //in menu refers to  being in menu, if it is true it means the user is in menu
-    //such as graphics, audio, other settings, NOTE: IMGUI WILL HANDLE MOUSE INPUTS TOO, BE CAREFUL, SO DONT USE
-    //ImGui::GetIO().WantCaptureMouse WHILE ALSO EXPECTING THE GAME TO CAPTURE MOUSE CORRECTLY, hence the InMenu bool
-    //is so important
+    //such as graphics, audio, other settings
+
+    bool IsFullScreen = false;
+
     /*   
     ▀█▀ █▀█ █▀▄ █▀█ ▀   █▀▀ █░█ ▄▀█ █▄░█ █▀▀ █▀▀   █ █▄░█ █▀▄▀█ █▀▀ █▄░█ █░█   ▀█▀ █▀█   ▀█▀ █▀█ █░█ █▀▀
     ░█░ █▄█ █▄▀ █▄█ ▄   █▄▄ █▀█ █▀█ █░▀█ █▄█ ██▄   █ █░▀█ █░▀░█ ██▄ █░▀█ █▄█   ░█░ █▄█   ░█░ █▀▄ █▄█ ██▄
@@ -80,21 +82,17 @@ int main()
     */
 
     
-
-
     Shader shader;
     std::vector<Mesh> meshes;
     std::vector<Image> images;
 
     
 
-    Vector3 testAtomPos{0.0, 0.0, 0.0};
-    Vector3 testAtomRotPx{0.0, 0.0, PI/2.0};
-    Vector3 testAtomRotPy{0.0, 0.0, 0.0}; //already in Py by default
-    Vector3 testAtomRotPz{PI/2.0, 0.0, 0.0};
-    Vector3 testAtomRotDxy{0.0, 0.0, PI/4.0};
-    Vector3 testAtomRotDyz{0.0, PI/2.0, PI/4.0};
-    Vector3 testAtomRotDxz{PI/2.0, 0.0, PI/4.0};
+    IBMol::Atom* myAtom = new IBMol::SmolAtom();
+    myAtom->SetAtomPosition(Vector3{2.0, 0.0, 4.0});
+    myAtom->SetAtomRotation(Vector3{PI/5.0, 0.0, 0.0});
+
+    
 
     try
     {
@@ -175,12 +173,19 @@ int main()
     DOrbitalMat.shader = shader;
     DOrbitalMat.maps[0].texture = LoadTextureFromImage(images.at(1));
 
-    //Creating the main light source                                                                        got this colour from some colour picking website
+    //Creating the main light source                                          got this colour from some colour picking website
     Light mainLight = CreateLight((Vector3){ 4200, 1000, 6900 }, (Vector3){0, 0, 0}, (Color){246, 234, 172, 255}, shader);
 
 
-    
+    myAtom->SetSOrbital(Vector3{1.1547, 1.1547, 1.1547}, 0);   //1.1547 = 2/sqrt(3)
+    myAtom->SetPxOrbital(Vector3{2.0, 0.0, 0.0}, 1);
+    myAtom->SetPyOrbital(Vector3{0.0, 2.0, 0.0}, 2);
+    myAtom->SetPzOrbital(Vector3{0.0, 0.0, 2.0}, 3);
+    myAtom->Hybridize(3);
 
+    std::cout << "\n\n\n";
+    myAtom->PrintFillingAndHybridization();
+    std::cout << "\n\n\n";
 
 
     /*
@@ -230,7 +235,7 @@ int main()
         {
            goto PROGRAM_END;
         }   //setup a way to forcefully exit program no matter what
-
+        
         if(!InMenu) //in app controls such as moving camera, moving objects, etc
         {
             /*
@@ -251,32 +256,37 @@ int main()
                     DisableCursor();
                 }
 
+                if(IsKeyDown(KEY_LEFT_SHIFT))
+                { CameraSpeed = 4.0f; }
+                else
+                { CameraSpeed = 1.0f; }
+
 
                 if(IsKeyDown(KEY_W))
                 {
-                    CameraMoveForward(&camera, 0.2f, false);
+                    CameraMoveForward(&camera, CameraSpeed * 0.2f, false);
                 }
                 else if(IsKeyDown(KEY_S))
                 {
-                    CameraMoveForward(&camera, -0.2f, false);
+                    CameraMoveForward(&camera, CameraSpeed * -0.2f, false);
                 }
 
                 if(IsKeyDown(KEY_D))
                 {
-                    CameraMoveRight(&camera, 0.2f, false);
+                    CameraMoveRight(&camera, CameraSpeed * 0.2f, false);
                 }
                 else if(IsKeyDown(KEY_A))
                 {
-                    CameraMoveRight(&camera, -0.2f, false);
+                    CameraMoveRight(&camera, CameraSpeed * -0.2f, false);
                 }
 
                 if(IsKeyDown(KEY_E))
                 {
-                    CameraMoveUp(&camera, 0.2f);
+                    CameraMoveUp(&camera, CameraSpeed * 0.2f);
                 }
                 else if(IsKeyDown(KEY_Q))
                 {
-                    CameraMoveUp(&camera, -0.2f);
+                    CameraMoveUp(&camera, CameraSpeed * -0.2f);
                 }
                 
 
@@ -348,23 +358,17 @@ int main()
 
                 //remember that matrix multiplication order matters, the atom should rotate THEN translate
 
-                transform = (MatrixRotateXYZ(testAtomRotPx) * MatrixTranslate(testAtomPos)) * MatrixScale(1.3, 1.0, 1.0);
+                
+                transform = (MatrixRotateXYZ(myAtom->GetAtomRotation()) * MatrixTranslate(myAtom->GetAtomPosition())) * MatrixScale(1.3, 1.0, 1.0);
                 DrawMesh(meshes.at(0), pOrbitalMat, transform);
 
-                transform = (MatrixRotateXYZ(testAtomRotPy) * MatrixTranslate(testAtomPos)) * MatrixScale(1.0, 1.3, 1.0);
+                transform = (MatrixRotateXYZ(myAtom->GetAtomRotation()) * MatrixTranslate(myAtom->GetAtomPosition())) * MatrixScale(1.0, 1.3, 1.0);
                 DrawMesh(meshes.at(0), pOrbitalMat, transform);
 
-                transform = (MatrixRotateXYZ(testAtomRotPz) * MatrixTranslate(testAtomPos)) * MatrixScale(1.0, 1.0, 1.3);
+                transform = (MatrixRotateXYZ(myAtom->GetAtomRotation()) * MatrixTranslate(myAtom->GetAtomPosition())) * MatrixScale(1.0, 1.0, 1.3);
                 DrawMesh(meshes.at(0), pOrbitalMat, transform);
                 
-                transform = (MatrixScale(1.5, 1.5, 1.2)  * MatrixRotateXYZ(testAtomRotDxy)) * MatrixTranslate(testAtomPos);
-                DrawMesh(meshes.at(1), DOrbitalMat, transform);
-                
-                transform = (MatrixScale(1.5, 1.5, 1.2)  * MatrixRotateXYZ(testAtomRotDyz)) * MatrixTranslate(testAtomPos);
-                DrawMesh(meshes.at(1), DOrbitalMat, transform);
-
-                transform = (MatrixScale(1.5, 1.5, 1.2)  * MatrixRotateXYZ(testAtomRotDxz)) * MatrixTranslate(testAtomPos);
-                DrawMesh(meshes.at(1), DOrbitalMat, transform);
+               
  
 
                 //draw grid
