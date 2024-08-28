@@ -14,6 +14,7 @@
 
 #include "IBCommonUtils.hpp"
 #include "Atom.hpp"
+#include "DrawAtom.hpp"
 
 
 int main()
@@ -87,34 +88,37 @@ int main()
     std::vector<Image> images;
 
     
+    //yes i am preallocating 200 atom's size worth of space on the heap even if the user will
+    //only use like 
+    std::vector<IBMol::SmolAtom> SmolAtoms;
+    SmolAtoms.push_back(IBMol::SmolAtom());
+    SmolAtoms[0].SetAtomPosition(Vector3{0.0, 0.0, 0.0});
+    SmolAtoms[0].SetAtomRotation(Vector3{0.0, 0.0, 0.0});
 
-    IBMol::Atom* myAtom = new IBMol::SmolAtom();
-    myAtom->SetAtomPosition(Vector3{2.0, 0.0, 4.0});
-    myAtom->SetAtomRotation(Vector3{PI/5.0, 0.0, 0.0});
-
+    SmolAtoms[0].SetPxOrbital(Vector3{3.0, 4.0, 5.0}, 2);
     
 
     try
     {
-        if(!DoesFileExist("./resources/models/p orbital.obj"))
+        if(!IBMol::DoesFileExist("./resources/models/p orbital.obj"))
         {
             throw std::runtime_error("resources/models/p orbital.obj");
         }
-        if(!DoesFileExist("./resources/models/d orbital normal.obj"))
+        if(!IBMol::DoesFileExist("./resources/models/d orbital normal.obj"))
         {
             throw std::runtime_error("resources/models/d orbital normal.obj");
         }
 
-        if(!DoesFileExist("./resources/textures/P Orbital Texture.png"))
+        if(!IBMol::DoesFileExist("./resources/textures/P Orbital Texture.png"))
         {
             throw std::runtime_error("resources/textures/P Orbital Texture.png");
         }
-        if(!DoesFileExist("./resources/textures/D Orbital Normal Texture.png"))
+        if(!IBMol::DoesFileExist("./resources/textures/D Orbital Normal Texture.png"))
         {
             throw std::runtime_error("resources/textures/D Orbital Normal Texture.png");
         }
         
-        if(!DoesFileExist("./resources/shaders/CellShading.fs"))
+        if(!IBMol::DoesFileExist("./resources/shaders/CellShading.fs"))
         {
             throw std::runtime_error("resources/shaders/CellShading.fs");
         }
@@ -157,7 +161,9 @@ int main()
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
     //setup shader viewPos, idk bruh it was there in the raylib/examples/shaders/shaders_basic_lighting.c
+    shader.locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(shader, "mvp");
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+    shader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(shader, "instanceTransform");
 
     //i got this also from the same file above
     int ambientLoc = GetShaderLocation(shader, "ambient");
@@ -176,16 +182,6 @@ int main()
     //Creating the main light source                                          got this colour from some colour picking website
     Light mainLight = CreateLight((Vector3){ 4200, 1000, 6900 }, (Vector3){0, 0, 0}, (Color){246, 234, 172, 255}, shader);
 
-
-    myAtom->SetSOrbital(Vector3{1.1547, 1.1547, 1.1547}, 0);   //1.1547 = 2/sqrt(3)
-    myAtom->SetPxOrbital(Vector3{2.0, 0.0, 0.0}, 1);
-    myAtom->SetPyOrbital(Vector3{0.0, 2.0, 0.0}, 2);
-    myAtom->SetPzOrbital(Vector3{0.0, 0.0, 2.0}, 3);
-    myAtom->Hybridize(3);
-
-    std::cout << "\n\n\n";
-    myAtom->PrintFillingAndHybridization();
-    std::cout << "\n\n\n";
 
 
     /*
@@ -334,8 +330,7 @@ int main()
         ██████╔╝██║░░██║██║░░██║░░╚██╔╝░╚██╔╝░██║██║░╚███║╚██████╔╝
         ╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚══╝░╚═════╝░
         */
-        //NOTE: SINCE ORDER OF MULTIPLICATION MATTERS, I AM DOING ROTATION THEN TRANSLATION
-        Matrix transform;
+        
 
         BeginDrawing();
 
@@ -359,26 +354,29 @@ int main()
                 //remember that matrix multiplication order matters, the atom should rotate THEN translate
 
                 
-                transform = (MatrixRotateXYZ(myAtom->GetAtomRotation()) * MatrixTranslate(myAtom->GetAtomPosition())) * MatrixScale(1.3, 1.0, 1.0);
-                DrawMesh(meshes.at(0), pOrbitalMat, transform);
+                IBMol::DrawSmoAtom_PX_OrbitalInstanced(meshes.at(0), pOrbitalMat, SmolAtoms, 1);
 
-                transform = (MatrixRotateXYZ(myAtom->GetAtomRotation()) * MatrixTranslate(myAtom->GetAtomPosition())) * MatrixScale(1.0, 1.3, 1.0);
-                DrawMesh(meshes.at(0), pOrbitalMat, transform);
-
-                transform = (MatrixRotateXYZ(myAtom->GetAtomRotation()) * MatrixTranslate(myAtom->GetAtomPosition())) * MatrixScale(1.0, 1.0, 1.3);
-                DrawMesh(meshes.at(0), pOrbitalMat, transform);
-                
                
- 
+                DrawSphere(Vector3{4.0, 7.0, -4.0}, 0.01, PINK);
+                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), SmolAtoms.at(0).GetPxOrbital(), Color{135, 168, 50, 255});
+                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), Vector3{SmolAtoms[0].pxO.x, SmolAtoms[0].pxO.y, 0.0}, Color{23, 116, 230, 255});
+                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), Vector3{0.0, SmolAtoms[0].pxO.y, SmolAtoms[0].pxO.z}, Color{224, 7, 105, 255});
+                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), Vector3{SmolAtoms[0].pxO.x, 0.0, SmolAtoms[0].pxO.z}, Color{71, 230, 129, 255});
+
+                
 
                 //draw grid
                 DrawGrid(600, 1.0f);
-                //draw x axis
-                DrawLine3D(Vector3{-300.0, 0.0, 0.0}, Vector3{300.0, 0.0, 0.0}, RED);
-                //draw y axis
-                DrawLine3D(Vector3{0.0, -300.0, 0.0}, Vector3{0.0,300.0, 0.0}, GREEN);
-                //draw z axis
-                DrawLine3D(Vector3{0.0, 0.0, -300.0}, Vector3{0.0, 0.0, 300.0}, BLUE);
+                //draw positive x axis
+                DrawLine3D(Vector3{0.0, 0.001, 0.0}, Vector3{300.0, 0.001, 0.0}, Color{214, 50, 28, 255});
+                //draw positive y axis
+                DrawLine3D(Vector3{0.001, 0.0, 0.0}, Vector3{0.001, 300.0, 0.0}, Color{11, 230, 59, 255});
+                //draw positive z axis
+                DrawLine3D(Vector3{0.0, 0.001, 0.0}, Vector3{0.0, 0.001, 300.0}, Color{96, 18, 230, 255});
+
+                /*
+                if you are wondering, the 0.001 value is there so that it doesnt intersect with the default grid lines
+                */
 
             EndMode3D();
 

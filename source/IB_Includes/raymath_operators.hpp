@@ -46,6 +46,32 @@
 #pragma once
 #include "raylib.h"
 
+
+
+//common defines
+
+#ifndef sin45
+	#define sin45 0.707106781
+#endif
+
+#ifndef sin60
+	#define sin60 0.866025403
+#endif
+
+#ifndef sin30
+	#define sin30 0.5
+#endif
+
+#ifndef sin15
+	#define sin15 0.258819045
+#endif
+
+#ifndef sin75
+	#define sin75 0.965925826
+#endif
+
+
+
 //------------------Vector2-----------------//
 inline Vector2 operator+ (Vector2 lhs, const Vector2& rhs)
 {

@@ -11,25 +11,28 @@
 #include <cmath>
 #include <cstdint>
 
-float RandomFloatRange(float min, float max)
+namespace IBMol
 {
-  return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
-}
+  float RandomFloatRange(float min, float max)
+  {
+    return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+  }
 
-inline uint16_t extractBits(uint16_t num, char pos, char k)
-{
-  return static_cast<uint16_t>(num << pos) >> (16-k);
-}
+  inline uint16_t extractBits(uint16_t num, char pos, char k)
+  {
+    return static_cast<uint16_t>(num << pos) >> (16-k);
+  }
 
-inline void ChangeBits(uint16_t& num, char pos, char k, uint16_t newValue)
-{
-    /*get all bits after pos + k &          changing the bits at the position
-    set all previous ones to 0*/
-    num = (  static_cast<uint16_t>(num << (pos+k))  >>  (pos+k)  )   |    (( ( (num >> (16-pos)) << k ) | newValue ) << (16-pos-k));
-}
+  inline void ChangeBits(uint16_t& num, char pos, char k, uint16_t newValue)
+  {
+      /*get all bits after pos + k &          changing the bits at the position
+      set all previous ones to 0*/
+      num = (  static_cast<uint16_t>(num << (pos+k))  >>  (pos+k)  )   |    (( ( (num >> (16-pos)) << k ) | newValue ) << (16-pos-k));
+  }
 
-inline bool DoesFileExist (const std::string& name)
-{
-  struct stat buffer;   
-  return (stat (name.c_str(), &buffer) == 0);
+  inline bool DoesFileExist (const std::string& name)
+  {
+    struct stat buffer;   
+    return (stat (name.c_str(), &buffer) == 0);
+  }
 }

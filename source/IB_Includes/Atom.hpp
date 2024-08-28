@@ -1,4 +1,5 @@
 #pragma once
+#include "rlgl.h"
 #include "raymath.h"
 #include "raylib.h"
 #include <vector>
@@ -12,7 +13,6 @@ static Matrix PzMat = MatrixRotateXYZ(Vector3{PI/2.0, 0.0, 0.0});
 
 #define SP 1
 #define SP2 2
-
 
 namespace IBMol
 {
@@ -36,24 +36,23 @@ public:
    
     virtual void Hybridize(char HybridizationType) = 0;
     virtual void UnHybridize() = 0;
-    virtual void PrintFillingAndHybridization() const = 0;
     virtual uint16_t GetFillingAndHybridization() const = 0;
 
     virtual Vector3 GetSOrbital() = 0;
 
-    virtual void SetSOrbital(const Vector3& inDir, uint16_t Filling) = 0;
+    virtual void SetSOrbital(const Vector3& dir, uint16_t Filling) = 0;
 
-    virtual Vector3 GetPxrbital() = 0;
+    virtual Vector3 GetPxOrbital() = 0;
 
-    virtual void SetPxOrbital(const Vector3& inDir, uint16_t Filling) = 0;
+    virtual void SetPxOrbital(const Vector3& dir, uint16_t Filling) = 0;
 
     virtual Vector3 GetPyOrbital() = 0;
 
-    virtual void SetPyOrbital(const Vector3& inDir, uint16_t Filling) = 0;
+    virtual void SetPyOrbital(const Vector3& dir, uint16_t Filling) = 0;
 
     virtual Vector3 GetPzOrbital() = 0;
 
-    virtual void SetPzOrbital(const Vector3& inDir, uint16_t Filling) = 0;
+    virtual void SetPzOrbital(const Vector3& dir, uint16_t Filling) = 0;
 
 
 
@@ -70,7 +69,7 @@ public:
 
     Vector3 GetAtomRotation()
     {
-        return Rotation;
+        return Vector3Normalize(Rotation);
     }
 
     void SetAtomRotation(const Vector3& inRotation)
@@ -104,21 +103,21 @@ public:
         return (Vector3)sO;
     }
 
-    void SetSOrbital(const Vector3& inDir, uint16_t Filling) override
+    void SetSOrbital(const Vector3& dir, uint16_t Filling) override
     {
-        sO = inDir;
+        sO = dir;
         ChangeBits(FillingAndHybridization, 0, 2, Filling);
 
     }
 
-    Vector3 GetPxrbital() override
+    Vector3 GetPxOrbital() override
     {
         return (Vector3)pxO;
     }
 
-    void SetPxOrbital(const Vector3& inDir, uint16_t Filling) override
+    void SetPxOrbital(const Vector3& dir, uint16_t Filling) override
     {
-        pxO = inDir;
+        pxO = dir;
         ChangeBits(FillingAndHybridization, 2, 2, Filling);
 
     }
@@ -128,9 +127,9 @@ public:
         return (Vector3)pyO;
     }
 
-    void SetPyOrbital(const Vector3& inDir, uint16_t Filling) override
+    void SetPyOrbital(const Vector3& dir, uint16_t Filling) override
     {
-        pyO = inDir;
+        pyO = dir;
         ChangeBits(FillingAndHybridization, 4, 2, Filling);
 
     }
@@ -140,142 +139,11 @@ public:
         return (Vector3)pzO;
     }
 
-    void SetPzOrbital(const Vector3& inDir, uint16_t Filling) override
+    void SetPzOrbital(const Vector3& dir, uint16_t Filling) override
     {
-        pzO = inDir;
+        pzO = dir;
         ChangeBits(FillingAndHybridization, 6, 2, Filling);
         
-    }
-
-
-
-    void PrintFillingAndHybridization() const override
-    {
-
-        
-        //S ORBITAL
-        switch (extractBits(this->FillingAndHybridization, 0, 2))
-        {
-        case 0:
-            //00 = 0 = empty orbital
-            std::cout << "S: empty, ";
-            break;
-        case 1:
-            //01 = 1 = half filled orbital
-            std::cout << "S: half, ";
-            break;
-        case 2:
-            //10 = 2 = fully filled orbital
-            std::cout << "S: full, ";
-            break;
-        case 3:
-            //11 = 3 = disabled orbital, aka the orbital is not in use
-            std::cout << "S: disabled, ";
-            break;
-        default:
-            break;
-        }
-
-
-
-        //Px ORBITAL
-        switch (extractBits(this->FillingAndHybridization, 2, 2))
-        {
-        case 0:
-            //00 = 0 = empty orbital
-            std::cout << "Px: empty, ";
-            break;
-        case 1:
-            //01 = 1 = half filled orbital
-            std::cout << "Px: half, ";
-            break;
-        case 2:
-            //10 = 2 = fully filled orbital
-            std::cout << "Px: full, ";
-            break;
-        case 3:
-            //11 = 3 = disabled orbital, aka the orbital is not in use
-            std::cout << "Px: disabled, ";
-            break;
-        default:
-            break;
-        }
-
-
-
-        //Py ORBITAL
-        switch (extractBits(this->FillingAndHybridization, 4, 2))
-        {
-        case 0:
-            //00 = 0 = empty orbital
-            std::cout << "Py: empty, ";
-            break;
-        case 1:
-            //01 = 1 = half filled orbital
-            std::cout << "Py: half, ";
-            break;
-        case 2:
-            //10 = 2 = fully filled orbital
-            std::cout << "Py: full, ";
-            break;
-        case 3:
-            //11 = 3 = disabled orbital, aka the orbital is not in use
-            std::cout << "Py: disabled, ";
-            break;
-        default:
-            break;
-        }
-
-
-
-        //Pz ORBITAL
-        switch (extractBits(this->FillingAndHybridization, 6, 2))
-        {
-        case 0:
-            //00 = 0 = empty orbital
-            std::cout << "Pz: empty, ";
-            break;
-        case 1:
-            //01 = 1 = half filled orbital
-            std::cout << "Pz: half, ";
-            break;
-        case 2:
-            //10 = 2 = fully filled orbital
-            std::cout << "Pz: full, ";
-            break;
-        case 3:
-            //11 = 3 = disabled orbital, aka the orbital is not in use
-            std::cout << "Pz: disabled, ";
-            break;
-        default:
-            break;
-        }
-
-
-
-        //HYRBIDIZATION
-        switch (extractBits(this->FillingAndHybridization, 8, 4))
-        {
-        case 12:
-            //1100 = 12 = UnHybridized
-            std::cout << "No / negligible Hybridization\n";
-            break;
-        case 1:
-            //0001 = 1 = sp hybridization
-            std::cout << "sp hybridization\n";
-            break;
-        case 2:
-            //0010 = 2 = sp2 hybridization
-            std::cout << "sp2 hybridization\n";
-            break;
-        case 3:
-            //0011 = 3 = sp3 hybridization
-            std::cout << "sp3 hybridization\n";
-            break;
-        
-        default:
-            break;
-        }
     }
 
 
@@ -300,7 +168,10 @@ public:
     SmolAtom()
     {
         FillingAndHybridization = 0;
+
+
     }
+
     ~SmolAtom()
     {
 
@@ -322,14 +193,22 @@ public:
     hVec3 dxyO, dyzO, dxzO, dx2y2O, dz2O;
     short FillingAndHybridization;
 
-    void PrintFillingAndHybridization() const override
-    {
-
-    }
 
     MidAtom();
     ~MidAtom();
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
