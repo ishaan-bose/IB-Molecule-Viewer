@@ -35,4 +35,16 @@ namespace IBMol
     struct stat buffer;   
     return (stat (name.c_str(), &buffer) == 0);
   }
+
+  Vector3 GetRandomPerpVecNormalized(Vector3 input)
+  {
+    Vector3 i = Vector3Normalize(input);
+
+    if(i.x == 0.0 && i.y == 1.0 && i.z == 0.0)
+    {
+      return Vector3{1.0, 0.0, 0.0};
+    }
+
+    return Vector3CrossProduct(input, Vector3{0.0, 1.0, 0.0});
+  } 
 }

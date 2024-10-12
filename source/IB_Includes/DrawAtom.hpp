@@ -7,11 +7,13 @@
 
 #define MAX_MATERIAL_MAPS       12
 
+typedef Vector3 vec3;
+
 namespace IBMol
 {
     //copied this from the DrawMeshInstanced function, modified it a bit
 
-    void DrawSmoAtom_PX_OrbitalInstanced(Mesh mesh, Material material, std::vector<IBMol::SmolAtom>& AtomsVector, int instances)
+    void DrawSmolAtom_PX_OrbitalInstanced(Mesh mesh, Material material, std::vector<IBMol::SmolAtom>& AtomsVector, int instances)
     {
     #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
         // Instancing required variables
@@ -72,12 +74,27 @@ namespace IBMol
             //IB comment, different from all the other comments made by raysan5:
             //yes I know that accessing all the elements of a vector each frame is slow, but unless you are running on something
             //like a really potato cpu, you should be good to go 👍
-            IBMol::SmolAtom cur = AtomsVector[i];
-            //remember that order of multiplication matters
-            Matrix PxTransform = MatrixScale(1.0/5.3597, 1.0/5.3597, 1.0/5.3597);
-            //i am really just hoping the compiler optimizes a lot of this code for me
 
-            instanceTransforms[i] = MatrixToFloatV(PxTransform);
+            auto CurAtomOrbital = AtomsVector.at(i).GetPxOrbital();
+
+            Matrix T = MatrixIdentity();
+            vec3 perp1 = IBMol::GetRandomPerpVecNormalized(CurAtomOrbital);
+            vec3 perp2 = Vector3CrossProduct(perp1, Vector3Normalize(CurAtomOrbital));
+
+            T.m0 = perp1.x;
+            T.m1 = perp1.y;
+            T.m2 = perp1.z;
+
+            T.m4 = CurAtomOrbital.x;
+            T.m5 = CurAtomOrbital.y;
+            T.m6 = CurAtomOrbital.z;
+
+            T.m8 = perp2.x;
+            T.m9 = perp2.y;
+            T.m10 = perp2.z;
+
+            //1/5.36 = 0.186, 5.36 = height of a vertex of a p orbital
+            instanceTransforms[i] = MatrixToFloatV(MatrixScale(0.186, 0.186, 0.186) * T * MatrixTranslate(AtomsVector.at(i).GetAtomPosition()) );
         }
 
         // Enable mesh VAO to attach new buffer

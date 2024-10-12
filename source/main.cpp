@@ -91,11 +91,15 @@ int main()
     //yes i am preallocating 200 atom's size worth of space on the heap even if the user will
     //only use like 
     std::vector<IBMol::SmolAtom> SmolAtoms;
-    SmolAtoms.push_back(IBMol::SmolAtom());
-    SmolAtoms[0].SetAtomPosition(Vector3{0.0, 0.0, 0.0});
-    SmolAtoms[0].SetAtomRotation(Vector3{0.0, 0.0, 0.0});
 
-    SmolAtoms[0].SetPxOrbital(Vector3{3.0, 4.0, 5.0}, 2);
+    for (size_t i = 0; i < 40000; i++)
+    {
+        SmolAtoms.push_back(IBMol::SmolAtom());
+        SmolAtoms.at(i).SetAtomPosition(Vector3{IBMol::RandomFloatRange(-200, 200), IBMol::RandomFloatRange(-200, 200), IBMol::RandomFloatRange(-200, 200)});
+        SmolAtoms.at(i).SetAtomRotation(Vector3{0.0, 0.0, 0.0});
+
+        SmolAtoms.at(i).SetPxOrbital(Vector3{IBMol::RandomFloatRange(1, 3), IBMol::RandomFloatRange(1, 3), IBMol::RandomFloatRange(1, 3)}, 2);
+    }
     
 
     try
@@ -354,16 +358,8 @@ int main()
                 //remember that matrix multiplication order matters, the atom should rotate THEN translate
 
                 
-                IBMol::DrawSmoAtom_PX_OrbitalInstanced(meshes.at(0), pOrbitalMat, SmolAtoms, 1);
+                IBMol::DrawSmolAtom_PX_OrbitalInstanced(meshes.at(0), pOrbitalMat, SmolAtoms, 40000);
 
-               
-                DrawSphere(Vector3{4.0, 7.0, -4.0}, 0.01, PINK);
-                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), SmolAtoms.at(0).GetPxOrbital(), Color{135, 168, 50, 255});
-                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), Vector3{SmolAtoms[0].pxO.x, SmolAtoms[0].pxO.y, 0.0}, Color{23, 116, 230, 255});
-                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), Vector3{0.0, SmolAtoms[0].pxO.y, SmolAtoms[0].pxO.z}, Color{224, 7, 105, 255});
-                DrawLine3D(SmolAtoms.at(0).GetAtomPosition(), Vector3{SmolAtoms[0].pxO.x, 0.0, SmolAtoms[0].pxO.z}, Color{71, 230, 129, 255});
-
-                
 
                 //draw grid
                 DrawGrid(600, 1.0f);

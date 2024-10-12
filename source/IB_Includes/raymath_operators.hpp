@@ -164,6 +164,11 @@ inline Vector3 operator/ (Vector3 lhs, const Vector3& rhs)
 	return Vector3{ lhs.x / rhs.y, lhs.y / rhs.y, lhs.z / rhs.z };
 }
 
+inline bool operator== (Vector3 lhs, const Vector3& rhs)
+{
+	return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+}
+
 static constexpr Vector3 Vector3Zero = { 0, 0, 0 };
 static constexpr Vector3 Vector3X = { 1, 0, 0 };
 static constexpr Vector3 Vector3Y = { 0, 1, 0 };
